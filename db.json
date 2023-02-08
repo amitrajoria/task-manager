@@ -1,0 +1,115 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Hello World",
+      "description": "Description for Hello World",
+      "task_status": "done",
+      "tags": [
+        "Others",
+        "Official"
+      ],
+      "subTasks": [
+        {
+          "subTaskTitle": "Hello World",
+          "status": true
+        },
+        {
+          "subTaskTitle": "Task 1 : Sub Task 1",
+          "status": true
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Task 2",
+      "description": "Description for task 2",
+      "task_status": "todo",
+      "tags": [
+        "Official",
+        "New"
+      ],
+      "subTasks": [
+        {
+          "subTaskTitle": "Task 2 : Sub Task 1",
+          "status": true
+        },
+        {
+          "subTaskTitle": "Task 2 : Sub Task 2",
+          "status": false
+        },
+        {
+          "subTaskTitle": "Task 2 : Sub Task 3",
+          "status": true
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Task 3",
+      "description": "Description for task 3",
+      "task_status": "in-progres",
+      "tags": [
+        "Official"
+      ],
+      "subTasks": [
+        {
+          "subTaskTitle": "Task 3 : Sub Task 1",
+          "status": true
+        },
+        {
+          "subTaskTitle": "Task 3 : Sub Task 2",
+          "status": false
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Task 4",
+      "description": "Description for task 4",
+      "task_status": "done",
+      "tags": [
+        "Personal"
+      ],
+      "subTasks": [
+        {
+          "subTaskTitle": "Task 4 : Sub Task 1",
+          "status": true
+        },
+        {
+          "subTaskTitle": "Task 4 : Sub Task 2",
+          "status": true
+        }
+      ]
+    },
+    {
+      "title": "Task 5",
+      "description": "Default description of Task 5",
+      "task_status": "in-progres",
+      "tags": [
+        "Others",
+        "New"
+      ],
+      "subTasks": [],
+      "id": 5
+    }
+  ],
+  "tagList": [
+    {
+      "id": 1,
+      "tag": "Personal"
+    },
+    {
+      "id": 2,
+      "tag": "Official"
+    },
+    {
+      "id": 3,
+      "tag": "Others"
+    },
+    {
+      "tag": "New",
+      "id": 4
+    }
+  ]
+}

@@ -1,23 +1,25 @@
-import logo from './logo.svg';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import './App.css';
+import AllRoutes from './pages/AllRoutes';
 
 function App() {
+
+  const isAuth = useSelector((store) => store.AuthReducer.isAuth);
+  const nevigate = useNavigate();
+
+  useEffect(() => {
+    if(!isAuth) {
+      nevigate('/login', {replace : true});
+    }
+  }, [])
+
+  
+  
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <AllRoutes />
     </div>
   );
 }
