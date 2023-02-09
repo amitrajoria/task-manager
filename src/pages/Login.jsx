@@ -20,8 +20,10 @@ import { login } from '../redux/AuthReducer/action';
 export default function Login() {
 
   const isAuth = useSelector((store) => store.AuthReducer.isAuth);
+  const isError = useSelector((store) => store.AuthReducer.isError);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const dispatch = useDispatch();
   const nevigate = useNavigate();
 
@@ -30,12 +32,21 @@ export default function Login() {
       nevigate('/', {replace : true}); 
     }
   })
-  
+
+  useEffect(() => {
+    if(isError)
+      setError("Invalid Login Details !!");
+    else 
+      setError("");
+  }, [isError])
+
+  console.log(error);
 
   const loginUser = () => {
     dispatch(login({"email": username, password}))
     .then(() => {
-      nevigate('/', {replace : true});  
+      if(isAuth)
+        nevigate('/', {replace : true}); 
     })
   }
 
@@ -55,6 +66,7 @@ export default function Login() {
           boxShadow={'lg'}
           p={8}>
           <Stack spacing={4}>
+            <Text>{error}</Text>
             <FormControl id="email">
               <FormLabel>Email address</FormLabel>
               <Input type="email" value={username} onChange={(e) => setUsername(e.target.value)} />

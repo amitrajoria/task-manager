@@ -14,8 +14,6 @@ function App() {
       nevigate('/login', {replace : true});
     }
   }, [])
-
-  
   
   return (
     <div className="App">
