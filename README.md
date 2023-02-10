@@ -1,6 +1,7 @@
 # You can check the live app here
 
-https://amit-task-manager.netlify.app/
+https://amit-taskmanager.netlify.app/
+
 
 # Getting Started with Create React App
 
