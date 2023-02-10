@@ -40,7 +40,7 @@
         },
         {
           "subTaskTitle": "Task 2 : Sub Task 3",
-          "status": true
+          "status": false
         }
       ]
     },
@@ -85,12 +85,16 @@
     {
       "title": "Task 5",
       "description": "Default description of Task 5",
-      "task_status": "in-progres",
+      "task_status": "todo",
       "tags": [
-        "Others",
-        "New"
+        "Personal"
       ],
-      "subTasks": [],
+      "subTasks": [
+        {
+          "subTaskTitle": "SubTask of Task 5",
+          "status": true
+        }
+      ],
       "id": 5
     }
   ],
