@@ -6,6 +6,8 @@ import {
   Input,
   Checkbox,
   Stack,
+  InputGroup,
+  InputRightElement,
   Link,
   Button,
   Heading,
@@ -13,41 +15,42 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as ReactLink } from 'react-router-dom';
 import { login } from '../redux/AuthReducer/action';
 
 export default function Login() {
 
-  const isAuth = useSelector((store) => store.AuthReducer.isAuth);
-  const isError = useSelector((store) => store.AuthReducer.isError);
+  const {isAuth, isError, response} = useSelector((store) => 
+  ({
+    isAuth : store.AuthReducer.isAuth , 
+    isError : store.AuthReducer.isError ,
+    response : store.AuthReducer.response
+  }));
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const nevigate = useNavigate();
 
   useEffect(() => {
-    if(isAuth) {
+    // if(response) {
+      // alert(response);
+      // response = "";
+    // }
+    if(isAuth && !isError) {
       nevigate('/', {replace : true}); 
     }
-  })
+  }, [isAuth, isError])
 
-  useEffect(() => {
-    if(isError)
-      setError("Invalid Login Details !!");
-    else 
-      setError("");
-  }, [isError])
-
-  console.log(error);
 
   const loginUser = () => {
     dispatch(login({"email": username, password}))
-    .then(() => {
-      if(isAuth)
-        nevigate('/', {replace : true}); 
-    })
+    .then((res) => {
+      if(res?.type == "LOGIN_FAILURE")
+        alert(res?.payload);
+    });
   }
 
   return (
@@ -66,14 +69,25 @@ export default function Login() {
           boxShadow={'lg'}
           p={8}>
           <Stack spacing={4}>
-            <Text>{error}</Text>
             <FormControl id="email">
               <FormLabel>Email address</FormLabel>
               <Input type="email" value={username} onChange={(e) => setUsername(e.target.value)} />
             </FormControl>
             <FormControl id="password">
               <FormLabel>Password</FormLabel>
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              {/* <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /> */}
+              <InputGroup>
+                  <Input type={showPassword ? 'text' : 'password'}  value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <InputRightElement h={'full'}>
+                    <Button
+                      variant={'ghost'}
+                      onClick={() =>
+                        setShowPassword((showPassword) => !showPassword)
+                      }>
+                      {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
             </FormControl>
             <Stack>
               <Stack
@@ -83,11 +97,6 @@ export default function Login() {
                 <Checkbox>Remember me</Checkbox>
                 <Link color={'blue.400'}>Forgot password?</Link>
               </Stack>
-              <Box fontWeight={'bold'}>Try login with these Details</Box>
-              <Stack spacing={1}>
-                <Text>Email : eve.holt@reqres.in</Text>
-                <Text>Password : cityslicka</Text>
-              </Stack>
               <Button
                 bg={'blue.400'}
                 color={'white'}
@@ -96,7 +105,10 @@ export default function Login() {
                 }}
                 onClick={loginUser}
                 >
-                Sign in
+                Login
+              </Button>
+              <Button colorScheme='teal' variant='outline'>
+                <ReactLink to={'/signup'}>Sign up</ReactLink>
               </Button>
             </Stack>
           </Stack>

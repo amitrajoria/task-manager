@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import CreateTaskModal from '../models/CreateTaskModal';
-import { getTags, getTasks } from '../redux/AppReducer/action';
+import { getProfile, getTags, getTasks } from '../redux/AppReducer/action';
 import store from '../redux/store';
 import * as actions from '../redux/AuthReducer/actionTypes'
 
@@ -13,40 +13,45 @@ const SideBar = () => {
   const {isOpen, onOpen, onClose} = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
   const tags = useSelector((store) => store.AppReducer.tags);
-  const allTasks = useSelector((store) => store.AppReducer.tasks);
+  const allTasks = useSelector((store) => store.AppReducer.tasks); 
   const dispatch = useDispatch();
   const nevigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [user, setUser] = useState("");
   const [selectedTags, setSelectedTags] = useState(searchParams.getAll('tags') || []);
   const filterBGColor = useColorModeValue('cyan', 'darkslategrey');
-
+  const filterActiveColor = useColorModeValue('black', 'white');
 
   useEffect(() => {
     if(tags.length == 0)
       dispatch(getTags());
   }, [tags.length])
 
-  useEffect(() => {
-    if(allTasks.length == 0) 
-      dispatch(getTasks());
-  }, [allTasks])
-
+  useState(() => {
+    dispatch(getProfile())
+    .then((res) => setUser(res?.name));
+  })
+  
   const filterTasksByTag = (tagValue) => {
     let newTags = [...selectedTags];
 
-    if(selectedTags.includes(tagValue))
+    if(newTags.includes(tagValue))
       newTags.splice(newTags.indexOf(tagValue), 1);
-    else 
-      newTags.push(tagValue);  
+    else
+      newTags.push(tagValue);
+
+    if(tagValue === "All")
+        newTags = [];
 
     setSearchParams({tags : newTags});
     setSelectedTags(newTags);
   }
 
   const logoutUser = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('loginToken');
     dispatch({type: actions.LOGOUT_REQUEST});
-    nevigate('/login', {replace : true});
+    window.location.href = '/';
+    // nevigate('/login', {replace : true});
   }
 
 
@@ -59,14 +64,14 @@ const SideBar = () => {
             <Box height="20%" border="1px solid rgba(0,0,0,0.1)" padding="10px">
               <Wrap>
                 <Flex>
-                  <Avatar name='Task Manager' src='https://bit.ly/broken-link' />
+                  <Avatar name={user}/>
                   <Box ml='3'>
                     <Link to={'/'}>
                       <Text fontWeight='bold'>
                         Task Manager
                       </Text>
                     </Link>
-                    <Text fontSize='sm'>Software Developer</Text>
+                    <Text fontSize='sm'>{user}</Text>
                   </Box>
                 </Flex>
                 <Flex direction={'row'} justifyContent={'space-between'}>
@@ -106,15 +111,17 @@ const SideBar = () => {
                 </Flex>
                 {
                   tags.length > 0 &&
-                  tags.map((tag) => {
-                    return <Flex key={tag.id} padding="4px 10px" background="teal.100" margin="2px" 
+                  tags.map((tag, index) => {
+                    return (
+                      <Flex key={tag._id} padding="4px 10px" background="teal.100" margin="2px" 
                             cursor="pointer"
                             borderRadius="4px"
                             justifyContent="space-between"
                             boxShadow="rgb(99 99 99 / 15%) 0px 2px 3px 0px"
                             onClick={() => filterTasksByTag(tag.tag)}
                             bg={`${filterBGColor}`} >
-                        <Text>{tag.tag}</Text>
+                        <Text>{tag.tag} {(selectedTags.includes(tag.tag)) ? <span className='active-filter' style={{background : `${filterActiveColor}`}}></span> : ""}
+                        </Text>
                         <Text marginLeft={`5px`} fontWeight="bold">
                           {
                             allTasks.length > 0 && 
@@ -122,6 +129,7 @@ const SideBar = () => {
                           }
                         </Text>
                       </Flex>
+                    )
                   })
                 }
               </Flex>

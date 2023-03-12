@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 import TaskCard from '../component/TaskCard'
-import { getTasks } from '../redux/AppReducer/action'
+import { getSubTasks, getTasks } from '../redux/AppReducer/action'
 import store from '../redux/store'
 
 const Home = () => {
@@ -11,11 +11,12 @@ const Home = () => {
   const allTasks = useSelector((store) => store.AppReducer.tasks);
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
-
+  
   useEffect(() => {
     if(allTasks.length == 0) 
       dispatch(getTasks());
-  }, [allTasks])
+  }, [allTasks.length])
+
 
   const filterByTags = (task) => {
     const tagsInParams = searchParams.getAll('tags');
@@ -45,10 +46,10 @@ const Home = () => {
           {
             allTasks.length > 0 &&
             allTasks
-            .filter((task) => task.task_status==="todo")
+            .filter((task) => task.taskStatus==="todo")
             .filter(filterByTags)
             .map((task, index) => {
-              return <TaskCard key={task.id} {...task} />
+              return <TaskCard key={task._id} {...task} />
             })
           }
         </Flex>
@@ -59,10 +60,10 @@ const Home = () => {
           {
             allTasks.length > 0 &&
             allTasks
-            .filter((task) => task.task_status==="in-progres")
+            .filter((task) => task.taskStatus==="in-progres")
             .filter(filterByTags)
             .map((task, index) => {
-              return <TaskCard key={task.id} {...task} />
+              return <TaskCard key={task._id} {...task} />
             })
           }
         </Flex>
@@ -73,10 +74,10 @@ const Home = () => {
           {
             allTasks.length > 0 &&
             allTasks
-            .filter((task) => task.task_status==="done")
+            .filter((task) => task.taskStatus==="done")
             .filter(filterByTags)
             .map((task, index) => {
-              return <TaskCard key={task.id} {...task} />
+              return <TaskCard key={task._id} {...task} />
             })
           }
         </Flex>

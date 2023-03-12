@@ -36,3 +36,11 @@
     transform: rotate(360deg);
   }
 }
+
+
+.active-filter {
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+  border-radius: 50%;
+}

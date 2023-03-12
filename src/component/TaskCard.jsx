@@ -1,34 +1,48 @@
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { Badge, Box, Checkbox, CheckboxGroup, Flex, Stack, Text } from '@chakra-ui/react'
-import React from 'react'
-import { useDispatch } from 'react-redux'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom';
-import { deleteTask, updateSubTaskStatus } from '../redux/AppReducer/action';
+import { deleteTask, getSubTasks, updateSubTaskStatus } from '../redux/AppReducer/action';
 
-const TaskCard = ({id, title, description, task_status, tags, subTasks}) => {
+
+const TaskCard = ({_id, title, description, taskStatus, tags}) => {
 
     const dispatch = useDispatch();
+    const [subTasks, setSubTasks] = useState([]);
+    const [selectedSubTasks, setSelectedSubTasks] = useState([]);
+
+
+    async function fetchData() {
+      setSubTasks(await dispatch(getSubTasks(_id)));
+    }
+  
+    useEffect(() => {
+       fetchData();
+     }, [])
+    
+    
+    useEffect(() => {
+        let subTaskStatus = [];
+        subTasks && subTasks.forEach((task) => {
+            if(task.status) 
+                subTaskStatus.push(task.title);
+        })
+        setSelectedSubTasks(subTaskStatus);
+
+    }, [subTasks])
 
     const deleteCurrentTask = () => {
-        dispatch(deleteTask(id));
+        dispatch(deleteTask(_id));
     }
 
-    const todoSubTaskList = () => {
-        if(subTasks.length == 0)
-            return "";
-        let subTaskValue = [];
-        subTasks.forEach((task) => {
-            if(task.status) 
-                subTaskValue.push(task.subTaskTitle);
-        })
-        
-        return subTaskValue;
-    }
-
-    const updateTaskStatus = (e) => {
-        let currValue = e.target.value;
-        subTasks.map((subTask) => (subTask.subTaskTitle === currValue) ? subTask.status = !subTask.status : "");
-        dispatch(updateSubTaskStatus(id, {"subTasks": subTasks}));
+    const updateTaskStatus = (e, subTaskId) => {
+        let currValue = e.target.checked; 
+        const payload = {
+          status : currValue
+        }
+        dispatch(updateSubTaskStatus(_id, subTaskId, payload))
+        .then((res) => setSubTasks(res))
     }
 
   return (
@@ -36,7 +50,7 @@ const TaskCard = ({id, title, description, task_status, tags, subTasks}) => {
         <Flex justifyContent="space-between">
             <Text>{title}</Text>
             <Flex>
-                <Link to={`edit/${id}`}>
+                <Link to={`edit/${_id}`}>
                     <EditIcon margin="-12px 8px 0 0"/>
                 </Link>
                 <DeleteIcon cursor={'pointer'} onClick={deleteCurrentTask}/>
@@ -53,12 +67,12 @@ const TaskCard = ({id, title, description, task_status, tags, subTasks}) => {
         </Box>
         <Text margin="5px 0">{description}</Text>
         <Box>
-            <CheckboxGroup colorScheme='blue' defaultValue={todoSubTaskList()}>
+            <CheckboxGroup colorScheme='blue' value={selectedSubTasks}>
                 <Stack spacing={[1, 2]} direction={['column']}>
                     {
                         subTasks.length > 0 && 
-                        subTasks.map((subTask, index) => {
-                            return <Checkbox key={index} value={`${subTask.subTaskTitle}`} onChange={updateTaskStatus}>{subTask.subTaskTitle}</Checkbox>
+                        subTasks.map((subTask) => {
+                            return <Checkbox key={subTask._id} value={`${subTask.title}`} onChange={(e) => updateTaskStatus(e, subTask._id)}>{subTask.title}</Checkbox>
                         })
                     }
                     

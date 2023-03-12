@@ -3,7 +3,7 @@ import { Box, Button, Checkbox, CheckboxGroup, Flex, FormControl, Heading, Input
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom'
-import { addTag, getTags, getTasks, updateSubTaskStatus, updateTask } from '../redux/AppReducer/action';
+import { addTag, createSubTask, deleteSubTask, getSubTasks, getTags, getTasks, updateSubTaskStatus, updateTask } from '../redux/AppReducer/action';
 import store from '../redux/store';
 
 const Edit = () => {
@@ -11,16 +11,51 @@ const Edit = () => {
   const {id} = useParams();
   const allTasks = useSelector((store) => store.AppReducer.tasks);
   const tags = useSelector((store) => store.AppReducer.tags);
+  const {isSubTaskLoading, isSubTaskError, response} = useSelector((store) => (
+    {
+      isSubTaskLoading : store.subTaskReducer.isSubTaskLoading,
+      isSubTaskError : store.subTaskReducer.isSubTaskError,
+      response : store.subTaskReducer.response
+    }
+  ));
   const dispatch = useDispatch();
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
   const [taskStatus, setTaskStatus] = useState("");
   const [taskTags, setTaskTags] = useState([]);
-  const [subTasks, setSubTasks] = useState([]);
+  // const [subTasks, setSubTasks] = useState([]);
   const [selectedSubTasks, setSelectedSubTasks] = useState([]);
   const [newSubTask, setNewSubTask] = useState("");
   const [newTag, setNewTag] = useState("");
-  
+  const [subTasks, setSubTasks] = useState([]);
+
+  async function fetchData() {
+    setSubTasks(await dispatch(getSubTasks(id)));
+  }
+
+  useEffect(() => {
+     fetchData();
+   }, [])
+
+  useEffect(() => {
+    if(subTasks.length == 0)
+        dispatch(getSubTasks(id));    
+  }, [subTasks.length])
+
+  useEffect(() => {
+    if(subTasks) {
+      const temp = subTasks
+                  .filter((subTask) => subTask.status && subTask.title)
+                   .map((item) => item.title);
+      setSelectedSubTasks(temp);
+    } 
+  }, [subTasks])
+
+
+  useEffect(() => {
+    if(response && isSubTaskError) 
+      alert(response);
+  }, [response, isSubTaskError])
 
   const addNewTag = (e) => {
     e.preventDefault();
@@ -31,25 +66,21 @@ const Edit = () => {
     .then(setNewTag(""));
   }
 
-  const deleteSubTask = (deleteTaskTitle) => {
-    const newSubTaskList = subTasks.filter((item) => item.subTaskTitle != deleteTaskTitle)
-    const payload = {
-      subTasks : newSubTaskList
-    };
-    dispatch(updateTask(id, payload))
+  const deleteCurSubTask = (subTaskId) => {
+    dispatch(deleteSubTask(id, subTaskId))
+    .then((res) => setSubTasks(res))
   }
 
   const addSubTask = (e) => {
     e.preventDefault();
-    const newSubTaskList = [
-      ...subTasks,
-      {subTaskTitle : newSubTask, status : false}
-    ];
     const payload = {
-      subTasks : newSubTaskList
+      title : newSubTask, 
+      status : false
     };
-    dispatch(updateTask(id, payload))
+    
+    dispatch(createSubTask(id, payload))
     .then(setNewSubTask(""))
+    .then((res) => setSubTasks(res))
   }
 
   const updateCurrentTask = (type, value) => {
@@ -64,7 +95,7 @@ const Edit = () => {
     }
     else if(type == "status") {
       const payload = {
-        task_status : value
+        taskStatus : value
       };
       dispatch(updateTask(id, payload))
     }
@@ -76,26 +107,32 @@ const Edit = () => {
     }
   }
 
-  const updateTaskStatus = (e) => {
-    let currValue = e.target.value;
-    let newSubTasks = [...subTasks];
-    newSubTasks.map((item) => (item.subTaskTitle === currValue) ? item.status = !item.status : "");
-    dispatch(updateSubTaskStatus(id, {"subTasks": newSubTasks}));
+  const updateTaskStatus = (e, subTaskId) => {
+    let currValue = e.target.checked; 
+    const payload = {
+      status : currValue
+    }
+    dispatch(updateSubTaskStatus(id, subTaskId, payload))
+    .then((res) => setSubTasks(res));
   }
 
   useEffect(() => {
+    if(allTasks.length == 0) 
+      dispatch(getTasks())
+      
     if(allTasks) {
-      const currentTask = allTasks.find((task) => task.id == Number(id));
+      const currentTask = allTasks.find((task) => task._id == id);
       if(currentTask) {
         setTaskTitle(currentTask.title);
         setTaskDescription(currentTask.description);
-        setTaskStatus(currentTask.task_status);
+        setTaskStatus(currentTask.taskStatus);
         setTaskTags(currentTask.tags);
-        setSubTasks(currentTask.subTasks);
-        const temp = currentTask.subTasks
-                    .filter((subTask) => subTask.status && subTask.subTaskTitle)
-                    .map((item) => item.subTaskTitle);
-        setSelectedSubTasks(temp);
+        if(subTasks) {
+          const temp = subTasks
+                      .filter((subTask) => subTask.status && subTask.title)
+                      .map((item) => item.title);
+          setSelectedSubTasks(temp);
+        }
       }
     }
   }, [id, allTasks])
@@ -128,10 +165,10 @@ const Edit = () => {
                 <Stack spacing={[1, 2]} direction={['column']}>
                     {
                         subTasks.length > 0 && 
-                        subTasks.map((subTask, index) => {
-                            return <Flex key={index} justifyContent={'space-between'}>
-                            <Checkbox value={subTask.subTaskTitle} onChange={updateTaskStatus}>{subTask.subTaskTitle}</Checkbox>
-                            <DeleteIcon cursor={'pointer'} marginTop={'4px'} onClick={() => deleteSubTask(subTask.subTaskTitle)}/>
+                        subTasks.map((subTask) => {
+                            return <Flex key={subTask._id} justifyContent={'space-between'}>
+                            <Checkbox value={subTask.title} onChange={(e) => updateTaskStatus(e, subTask._id)}>{subTask.title}</Checkbox>
+                            <DeleteIcon cursor={'pointer'} marginTop={'4px'} onClick={() => deleteCurSubTask(subTask._id)}/>
                           </Flex>
                         })
                     }
@@ -171,8 +208,8 @@ const Edit = () => {
             <Stack spacing={[1, 2]} direction={['column']}>
               {
                 tags.length > 0 && 
-                tags.map((tag) => {
-                  return <Checkbox key={tag.id} value={tag.tag}>{tag.tag}</Checkbox>
+                tags.map((tag, index) => {
+                  return <Checkbox key={index} value={tag.tag}>{tag.tag}</Checkbox>
                 })
               }
             </Stack>

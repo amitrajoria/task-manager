@@ -4,7 +4,8 @@ const initState = {
     tasks : [],
     tags : [],
     isLoading : false,
-    isError : false 
+    isError : false ,
+    response : ""
 }
 
 const reducer = (state = initState, action) => {
@@ -14,43 +15,50 @@ const reducer = (state = initState, action) => {
             return {
                 ...state,
                 isLoading : true,
-                isError : false
+                isError : false,
+                response : ""
             }
         case actions.TASKS_SUCCESS : 
             return {
                 ...state,
                 isLoading : false,
                 tasks : payload,
-                isError : false
+                isError : false,
+                response : ""
             }
         case actions.TASKS_FAILURE : 
             return {
                 ...state,
                 isLoading : false,
-                isError : true
+                isError : true,
+                response : payload
             }
         case actions.UPDATE_TASK_REQUEST  : 
             return {
                 ...state,
                 isLoading : true,
-                isError : false
+                isError : false,
+                response : ""
             }
         case actions.UPDATE_TASK_FAILURE : 
             return {
                 ...state,
                 isLoading : false,
-                isError : true
+                isError : true,
+                response : ""
             }
         case actions.TAGS_SUCCESS: 
             return {
                 ...state,
                 tags : payload,
-                isError : false
+                isError : false,
+                response : ""
             }
         case actions.TAGS_FAILURE : 
             return {
                 ...state,
                 isError : true,
+                response : payload
             }
         default : 
             return state;

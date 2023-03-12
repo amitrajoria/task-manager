@@ -1,5 +1,5 @@
 import { Button, FormControl, FormLabel, Input, Menu, MenuButton, MenuItemOption, MenuList, MenuOptionGroup, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Textarea, useDisclosure } from '@chakra-ui/react'
-import React, { useReducer } from 'react'
+import React, { useEffect, useReducer } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { createTask, getTasks } from '../redux/AppReducer/action'
@@ -7,7 +7,7 @@ import { createTask, getTasks } from '../redux/AppReducer/action'
 const initState = {
     title : "",
     description : "Default description",
-    task_status : "todo",
+    taskStatus : "todo",
     tags : ["Others"],
     subTasks : [],
 }
@@ -24,10 +24,10 @@ const reducer = (state, action) => {
                 ...state,
                 description : action.payload,
             }
-        case "task_status" : 
+        case "taskStatus" : 
             return {
                 ...state,
-                status : action.payload
+                taskStatus : action.payload
             }
         case "tags" : 
             return {
@@ -43,6 +43,8 @@ function CreateTaskModal({isOpen, onClose}) {
 
     const [formState, setFormState] = useReducer(reducer, initState);
     const allTags = useSelector((store) => store.AppReducer.tags);
+    const response = useSelector((store) => store.AppReducer.response);
+    const isError = useSelector((store) => store.AppReducer.isError);
     const dispatch = useDispatch();
     const nevigate = useNavigate();
     const location = useLocation();
@@ -53,16 +55,21 @@ function CreateTaskModal({isOpen, onClose}) {
 
 
     const createNewTask = () => {
-      if(formState.title) {
-        dispatch(createTask(formState))
-        .then(() => {
+      dispatch(createTask(formState))
+      .then((res) => {
+        if(res?.type != "TASKS_FAILURE")
           onClose();
-          if(location.pathname !== '/')
-            nevigate('/');
-        })
-      }
+      });
     }
-  
+    
+    useEffect(() => {
+      if(response)
+        alert(response);
+      if(!isError) {
+        onClose();
+      }
+    }, [isError, response])
+
     return (
       <>
         <Modal
@@ -88,7 +95,7 @@ function CreateTaskModal({isOpen, onClose}) {
 
               <FormControl mt={4}>
                 <FormLabel>Task Status</FormLabel>  
-                <Select placeholder='Task Status'  value={formState.task_status} onChange={(value) => setFormState({type: "task_status", payload: value})} >
+                <Select placeholder='Task Status'  value={formState.taskStatus} onChange={(e) => setFormState({type: "taskStatus", payload: e.target.value})} >
                     <option value='todo'>Todo</option>
                     <option value='in-progres'>In-Progess</option>
                     <option value='done'>Done</option>
@@ -106,7 +113,7 @@ function CreateTaskModal({isOpen, onClose}) {
                             {
                                 allTags.length > 0 && 
                                 allTags.map((item) => {
-                                    return <MenuItemOption key={item.id} value={item.tag}>{item.tag}</MenuItemOption>
+                                    return <MenuItemOption key={item._id} value={item.tag}>{item.tag}</MenuItemOption>
                                 })
                             }
                         </MenuOptionGroup>
