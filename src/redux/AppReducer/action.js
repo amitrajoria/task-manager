@@ -9,7 +9,7 @@ const getTasks = () => async dispatch => {
     dispatch({type : actions.TASKS_REQUEST});
     const token = getLoginData('loginToken');
     const headers = { Authorization: `Bearer ${token}` };
-    return axios.get(`http://localhost:8080/tasks`, { headers })
+    return axios.get(`https://taskmanager-backend.onrender.com/tasks`, { headers })
             .then((res) => dispatch({type: actions.TASKS_SUCCESS, payload: res.data?.tasks}))
             .catch((err) => dispatch({type: actions.TASKS_FAILURE}))
 }
@@ -18,7 +18,7 @@ const getSubTasks = (id) => dispatch => {
     const token = getLoginData('loginToken');
     dispatch({type : actions.SUBTASK_REQUEST});
     const headers = { Authorization: `Bearer ${token}` };
-    return axios.get(`http://localhost:8080/subtasks/${id}`, { headers })
+    return axios.get(`https://taskmanager-backend.onrender.com/subtasks/${id}`, { headers })
             .then((res) => {return res?.data?.subTasks})
             // .then((res) => dispatch({type: actions.SUBTASK_SUCCESS, payload : res?.data?.subTasks}))
             .catch((err) => dispatch({type: actions.SUBTASK_FAILURE, payload : err?.response?.data?.msg}))
@@ -27,7 +27,7 @@ const getSubTasks = (id) => dispatch => {
 const getTags = () => dispatch => {
     const token = getLoginData('loginToken');
     const headers = { Authorization: `Bearer ${token}` };
-    return axios.get(`http://localhost:8080/tags`, { headers })
+    return axios.get(`https://taskmanager-backend.onrender.com/tags`, { headers })
             .then((res) => dispatch({type: actions.TAGS_SUCCESS, payload: res.data?.tags}))
             .catch((err) => dispatch({type: actions.TAGS_FAILURE}))
 }
@@ -35,7 +35,7 @@ const getTags = () => dispatch => {
 const getProfile = () => dispatch => {
     const token = getLoginData('loginToken');
     const headers = { Authorization: `Bearer ${token}` };
-    return axios.get(`http://localhost:8080/profile`, { headers })
+    return axios.get(`https://taskmanager-backend.onrender.com/profile`, { headers })
             .then((res) => {return res?.data?.user})
             .catch((err) => {return err?.response?.data?.msg})
 }
@@ -47,7 +47,7 @@ const updateTask = (id, payload) => (dispatch) => {
     const headers = { Authorization: `Bearer ${token}` };
     return axios({
                 method : "PATCH",
-                url : `http://localhost:8080/tasks/edit/${id}`,
+                url : `https://taskmanager-backend.onrender.com/tasks/edit/${id}`,
                 headers,
                 data : payload
             })
@@ -60,7 +60,7 @@ const addTag = (payload) => (dispatch) => {
     const headers = { Authorization: `Bearer ${token}` };
     return axios({
                 method : "POST",
-                url : `http://localhost:8080/tags/create`,
+                url : `https://taskmanager-backend.onrender.com/tags/create`,
                 headers,
                 data : payload
             })
@@ -74,7 +74,7 @@ const createTask = (payload) => (dispatch) => {
     const headers = { Authorization: `Bearer ${token}` };
     return axios({
             method : "POST",
-            url : `http://localhost:8080/tasks/create`,
+            url : `https://taskmanager-backend.onrender.com/tasks/create`,
             headers,
             data : payload
             })
@@ -88,7 +88,7 @@ const createSubTask = (id, payload) => (dispatch) => {
     const headers = { Authorization: `Bearer ${token}` };
     return axios({
             method : "POST",
-            url : `http://localhost:8080/subtasks/${id}/create`,
+            url : `https://taskmanager-backend.onrender.com/subtasks/${id}/create`,
             headers,
             data : payload
             })
@@ -100,7 +100,7 @@ const deleteTask = (taskId) => (dispatch) => {
     const token = getLoginData('loginToken');
     dispatch({type : actions.TASKS_REQUEST});
     const headers = { Authorization: `Bearer ${token}` };
-    return axios.delete(`http://localhost:8080/tasks/delete/${taskId}`, { headers })
+    return axios.delete(`https://taskmanager-backend.onrender.com/tasks/delete/${taskId}`, { headers })
             .then((res) => dispatch(getTasks()))
             .catch((err) => dispatch({type: actions.TASKS_FAILURE, payload : err?.response?.data?.msg}))
 }
@@ -109,7 +109,7 @@ const deleteSubTask = (taskId, subTaskId) => (dispatch) => {
     const token = getLoginData('loginToken');
     dispatch({type : actions.SUBTASK_REQUEST});
     const headers = { Authorization: `Bearer ${token}` };
-    return axios.delete(`http://localhost:8080/subtasks/${taskId}/delete/${subTaskId}`, { headers })
+    return axios.delete(`https://taskmanager-backend.onrender.com/subtasks/${taskId}/delete/${subTaskId}`, { headers })
             .then((res) => dispatch(getSubTasks(taskId)))
             .catch((err) => dispatch({type: actions.SUBTASK_FAILURE, payload : err?.response?.data?.msg}))
 }
@@ -120,7 +120,7 @@ const updateSubTaskStatus = (taskId, subTaskId, payload) => (dispatch) => {
     const headers = { Authorization: `Bearer ${token}` };
     return axios({
         method : "PATCH",
-        url : `http://localhost:8080/subtasks/${taskId}/edit/${subTaskId}`,
+        url : `https://taskmanager-backend.onrender.com/subtasks/${taskId}/edit/${subTaskId}`,
         headers,
         data : payload
         })
