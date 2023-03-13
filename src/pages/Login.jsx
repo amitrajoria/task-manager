@@ -5,18 +5,21 @@ import {
   FormLabel,
   Input,
   Checkbox,
+  Center,
   Stack,
   InputGroup,
   InputRightElement,
   Link,
   Button,
   Heading,
+  Divider,
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
+import { FcGoogle } from 'react-icons/fc';
 import { useNavigate, Link as ReactLink } from 'react-router-dom';
 import { login } from '../redux/AuthReducer/action';
 
@@ -69,6 +72,16 @@ export default function Login() {
           boxShadow={'lg'}
           p={8}>
           <Stack spacing={4}>
+            <Button
+              w={'full'}
+              maxW={'md'}
+              variant={'outline'}
+              leftIcon={<FcGoogle />}>
+              <Center>
+                <ReactLink to={'https://taskmanager-backend.onrender.com/auth/google/callback'}><Text>Sign in with Google</Text></ReactLink>
+              </Center>
+            </Button>
+            <Divider marginTop="40" />
             <FormControl id="email">
               <FormLabel>Email address</FormLabel>
               <Input type="email" value={username} onChange={(e) => setUsername(e.target.value)} />
