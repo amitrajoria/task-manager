@@ -8,6 +8,13 @@ const login = (params) => dispatch => {
             .catch((err) => dispatch({type: actions.LOGIN_FAILURE, payload: err?.response?.data?.msg}))
 }
 
+const googleLogin = (params) => dispatch => {
+    dispatch({type: actions.LOGIN_REQUEST});
+    return axios.post(`https://taskmanager-backend.onrender.com/auth/google/login`, params)
+            .then((res) => dispatch({type: actions.LOGIN_SUCCESS, payload: res.data}))
+            .catch((err) => dispatch({type: actions.LOGIN_FAILURE, payload: err?.response?.data?.msg}))
+}
+
 const register = (params) => dispatch => {
     dispatch({type: actions.REGISTER_REQUEST});
     return axios.post(`https://taskmanager-backend.onrender.com/auth/signup`, params)
@@ -17,5 +24,6 @@ const register = (params) => dispatch => {
 
 export {
     login,
+    googleLogin,
     register
 } 

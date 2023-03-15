@@ -21,13 +21,16 @@ import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { FcGoogle } from 'react-icons/fc';
 import { useNavigate, Link as ReactLink } from 'react-router-dom';
-import { login } from '../redux/AuthReducer/action';
+import { googleLogin, login } from '../redux/AuthReducer/action';
+import { LoginSocialGoogle } from 'reactjs-social-login';
+
 
 export default function Login() {
 
-  const {isAuth, isError, response} = useSelector((store) => 
+  const {isAuth, isLoading, isError, response} = useSelector((store) => 
   ({
-    isAuth : store.AuthReducer.isAuth , 
+    isAuth : store.AuthReducer.isAuth ,
+    isLoading : store.AuthReducer.isLoading , 
     isError : store.AuthReducer.isError ,
     response : store.AuthReducer.response
   }));
@@ -36,7 +39,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const nevigate = useNavigate();
-
+console.log(isLoading);
   useEffect(() => {
     // if(response) {
       // alert(response);
@@ -56,6 +59,24 @@ export default function Login() {
     });
   }
 
+  const googleLoginSuccess = ({ provider, data }) => {
+    const { name, email } = data;
+    dispatch(googleLogin({name, email}))
+    .then((res) => {
+      if(res?.type == "LOGIN_FAILURE") {
+        if(res?.payload)
+          alert(res?.payload);
+        else 
+          alert("Something went wrong!!");
+      }
+    });
+  }
+
+  const googleLoginFailure = (err) => {
+    alert("Google access denied! Please try again");
+    console.log(err);
+  } 
+
   return (
     <Flex
       minH={'100vh'}
@@ -72,15 +93,28 @@ export default function Login() {
           boxShadow={'lg'}
           p={8}>
           <Stack spacing={4}>
-            <Button
-              w={'full'}
-              maxW={'md'}
-              variant={'outline'}
-              leftIcon={<FcGoogle />}>
-              <Center>
-                <ReactLink to={'https://taskmanager-backend.onrender.com/auth/google/callback'}><Text>Sign in with Google</Text></ReactLink>
-              </Center>
-            </Button>
+            <LoginSocialGoogle
+              client_id={
+                '8760993662-8go1u9p44htv2o14iqpt3lt5c1tqj91i.apps.googleusercontent.com'
+              }
+              scope="openid profile email"
+              discoveryDocs="claims support"
+              access_type='offline'
+              onResolve={googleLoginSuccess}
+              onReject={googleLoginFailure}
+            >
+              <Button
+                w={'full'}
+                maxW={'md'}
+                variant={'outline'}
+                leftIcon={<FcGoogle />} >
+                <Center>
+                {/* <ReactLink to={'https://taskmanager-backend.onrender.com/auth/google/callback'}><Text>Sign in with Google</Text></ReactLink> */}
+                <Text>Sign in with Google</Text>
+                </Center>
+              </Button>
+            </LoginSocialGoogle>
+            <Text>{isLoading && 'Logging In...'}</Text>
             <Divider marginTop="40" />
             <FormControl id="email">
               <FormLabel>Email address</FormLabel>
@@ -88,7 +122,6 @@ export default function Login() {
             </FormControl>
             <FormControl id="password">
               <FormLabel>Password</FormLabel>
-              {/* <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /> */}
               <InputGroup>
                   <Input type={showPassword ? 'text' : 'password'}  value={password} onChange={(e) => setPassword(e.target.value)} />
                   <InputRightElement h={'full'}>
